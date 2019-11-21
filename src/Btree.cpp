@@ -55,6 +55,30 @@ void Page::splitChild(int i) {
     n++;
 }
 
+void Page::insertNonFull(int k) {
+    int i = n - 1;
+    if (leaf) {
+        while (i >= 0 && k < keys[i]) {
+            keys[i + 1] = keys[i];
+            i--;
+        }
+        keys[i + 1] = k;
+        n++;
+    } else {
+        while (i >= 0 && k < keys[i]) {
+            i--;
+        }
+        i++;
+        if (links[i]->n == 2 * t - 1) {
+            splitChild(i);
+            if (k > keys[i])
+                i++;
+        }
+        links[i]->insertNonFull(k);
+    }
+
+}
+
 void Page::stealLeft(int i) {
     Page *x = links[i];
     Page *y = links[i - 1];

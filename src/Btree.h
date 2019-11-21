@@ -20,29 +20,7 @@ struct Page {
 
     void splitChild(int i);
 
-    void insertNonFull(int k) {
-        int i = n - 1;
-        if (leaf) {
-            while (i >= 0 && k < keys[i]) {
-                keys[i + 1] = keys[i];
-                i--;
-            }
-            keys[i + 1] = k;
-            n++;
-        } else {
-            while (i >= 0 && k < keys[i]) {
-                i--;
-            }
-            i++;
-            if (links[i]->n == 2 * t - 1) {
-                splitChild(i);
-                if (k > keys[i])
-                    i++;
-            }
-            links[i]->insertNonFull(k);
-        }
-
-    }
+    void insertNonFull(int k);
 
     void mergeChild(int i);
 
