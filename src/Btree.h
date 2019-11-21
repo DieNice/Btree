@@ -7,16 +7,15 @@
 
 void printTab(int d);
 
-struct Page {
+struct Node {
     int t, n;
     bool leaf;
-    Page **links;
+    Node **links;
     int *keys;
 
-    //public:
-    Page(int _t = 2);
+    Node(int _t = 2);
 
-    ~Page();
+    ~Node();
 
     void splitChild(int i);
 
@@ -42,15 +41,11 @@ struct Page {
 
 class BTree {
     int t;
-    Page *root;
+    Node *root;
 public:
-    BTree(int _t = 2) {
-        t = _t;
-        //root = new Page(t);
-        root = nullptr;
-    }
+    BTree(int _t = 2);
 
-    ~BTree() { delete root; }
+    ~BTree();
 
     bool search(int key);
 

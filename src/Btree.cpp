@@ -5,23 +5,23 @@
 #include "Btree.h"
 
 #include <iostream>
-//#include <vector>
 
 using namespace std;
 
+//********************************Node(Page)************************************
 
-Page::Page(int _t) {
+Node::Node(int _t) {
     t = _t;
     n = 0;
     leaf = true;
-    links = new Page *[2 * t];
+    links = new Node *[2 * t];
     for (size_t i = 0; i < 2 * t; i++) {
         links[i] = nullptr;
     }
     keys = new int[2 * t - 1];
 }
 
-Page::~Page() {
+Node::~Node() {
     for (size_t i = 0; i < 2 * t; i++) {
         if (links[i] != nullptr)
             delete links[i];
@@ -30,9 +30,9 @@ Page::~Page() {
     delete[] keys;
 }
 
-void Page::splitChild(int i) {
-    Page *z = new Page(t);
-    Page *y = links[i];
+void Node::splitChild(int i) {
+    Node *z = new Node(t);
+    Node *y = links[i];
     z->leaf = y->leaf;
     for (int j = 0; j < t - 1; j++) {
         z->keys[j] = y->keys[j + t];
@@ -55,7 +55,7 @@ void Page::splitChild(int i) {
     n++;
 }
 
-void Page::insertNonFull(int k) {
+void Node::insertNonFull(int k) {
     int i = n - 1;
     if (leaf) {
         while (i >= 0 && k < keys[i]) {
@@ -79,9 +79,9 @@ void Page::insertNonFull(int k) {
 
 }
 
-void Page::stealLeft(int i) {
-    Page *x = links[i];
-    Page *y = links[i - 1];
+void Node::stealLeft(int i) {
+    Node *x = links[i];
+    Node *y = links[i - 1];
     int k = keys[i - 1];
     int xn = x->n;
     int yn = y->n;
@@ -103,9 +103,9 @@ void Page::stealLeft(int i) {
     y->n -= 1;
 }
 
-void Page::stealRight(int i) {
-    Page *x = links[i];
-    Page *y = links[i + 1];
+void Node::stealRight(int i) {
+    Node *x = links[i];
+    Node *y = links[i + 1];
     int k = keys[i];
     int xn = x->n;
     int yn = y->n;
@@ -127,9 +127,9 @@ void Page::stealRight(int i) {
     y->n -= 1;
 }
 
-void Page::mergeChild(int i) {
-    Page *y = links[i];
-    Page *z = links[i + 1];
+void Node::mergeChild(int i) {
+    Node *y = links[i];
+    Node *z = links[i + 1];
     int yn = y->n;
     int zn = z->n;
     y->keys[yn] = keys[i];
@@ -154,22 +154,22 @@ void Page::mergeChild(int i) {
     n--;
 }
 
-int Page::getMin(int i) {
-    Page *x = links[i];
+int Node::getMin(int i) {
+    Node *x = links[i];
     while (!x->leaf)
         x = x->links[0];
     return x->keys[0];
 }
 
 
-int Page::getMax(int i) {
-    Page *x = links[i];
+int Node::getMax(int i) {
+    Node *x = links[i];
     while (!x->leaf)
         x = x->links[x->n];
     return x->keys[x->n - 1];
 }
 
-bool Page::remove(int key) {
+bool Node::remove(int key) {
     int i = 0;
     for (i = 0; i < n; i++) {
         if (key <= keys[i]) {
@@ -230,7 +230,7 @@ bool Page::remove(int key) {
 }
 
 
-void Page::print(int d) {
+void Node::print(int d) {
     for (int i = n; i >= 0; i--) {
         if (i < n) {
             if (i == n - 1) {
@@ -249,7 +249,7 @@ void Page::print(int d) {
     }
 }
 
-bool Page::search(int key) {
+bool Node::search(int key) {
     int i = 0;
     for (i = 0; i < n; i++) {
         if (key <= keys[i]) {
@@ -277,7 +277,13 @@ void printTab(int d) {
 }
 //**************************************BTREE**********************
 
+BTree::BTree(int _t) {
+    t = _t;
+    //root = new Node(t);
+    root = nullptr;
+}
 
+BTree::~BTree() { delete root; }
 
 bool BTree::search(int key) {
     if (root != nullptr)
@@ -287,10 +293,10 @@ bool BTree::search(int key) {
 
 void BTree::insert(int key) {
     if (root == nullptr)
-        root = new Page(t);
-    Page *r = root;
+        root = new Node(t);
+    Node *r = root;
     if (root->n == 2 * t - 1) {
-        Page *s = new Page(t);
+        Node *s = new Node(t);
         root = s;
         s->leaf = false;
         s->n = 0;
@@ -316,7 +322,7 @@ bool BTree::remove(int key) {
     bool flag = root->remove(key);
 
     if (root->n == 0) {
-        Page *temp = root;
+        Node *temp = root;
         root = temp->links[0];
         temp->links[0] = nullptr;
         delete temp;
