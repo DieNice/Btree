@@ -88,10 +88,11 @@ template void Node<char>::insertNonFull(char k);
 
 template void Node<float>::insertNonFull(float k);
 
-/*void Node::stealLeft(int i) {
-    Node *x = links[i];
-    Node *y = links[i - 1];
-    int k = keys[i - 1];
+template<typename T>
+void Node<T>::stealLeft(int i) {
+    Node<T> *x = links[i];
+    Node<T> *y = links[i - 1];
+    T k = keys[i - 1];
     int xn = x->numchilds;
     int yn = y->numchilds;
 
@@ -112,10 +113,11 @@ template void Node<float>::insertNonFull(float k);
     y->numchilds -= 1;
 }
 
-void Node::stealRight(int i) {
-    Node *x = links[i];
-    Node *y = links[i + 1];
-    int k = keys[i];
+template<typename T>
+void Node<T>::stealRight(int i) {
+    Node<T> *x = links[i];
+    Node<T> *y = links[i + 1];
+    T k = keys[i];
     int xn = x->numchilds;
     int yn = y->numchilds;
 
@@ -136,9 +138,10 @@ void Node::stealRight(int i) {
     y->numchilds -= 1;
 }
 
-void Node::mergeChild(int i) {
-    Node *y = links[i];
-    Node *z = links[i + 1];
+template<typename T>
+void Node<T>::mergeChild(int i) {
+    Node<T> *y = links[i];
+    Node<T> *z = links[i + 1];
     int yn = y->numchilds;
     int zn = z->numchilds;
     y->keys[yn] = keys[i];
@@ -163,22 +166,24 @@ void Node::mergeChild(int i) {
     numchilds--;
 }
 
-int Node::getMin(int i) {
-    Node *x = links[i];
+template<typename T>
+T Node<T>::getMin(int i) {
+    Node<T> *x = links[i];
     while (!x->leaf)
         x = x->links[0];
     return x->keys[0];
 }
 
-
-int Node::getMax(int i) {
-    Node *x = links[i];
+template<typename T>
+T Node<T>::getMax(int i) {
+    Node<T> *x = links[i];
     while (!x->leaf)
         x = x->links[x->numchilds];
     return x->keys[x->numchilds - 1];
 }
 
-bool Node::remove(int key) {
+template<typename T>
+bool Node<T>::remove(T key) {
     int i = 0;
     for (i = 0; i < numchilds; i++) {
         if (key <= keys[i]) {
@@ -199,14 +204,12 @@ bool Node::remove(int key) {
             return true;
         } else {
             if (links[i]->numchilds >= t) {
-                int nkey = getMax(i);
+                T nkey = getMax(i);
                 keys[i] = nkey;
-                //numchilds--;
                 return links[i]->remove(nkey);
             } else if (links[i + 1]->numchilds >= t) {
-                int nkey = getMin(i + 1);
+                T nkey = getMin(i + 1);
                 keys[i] = nkey;
-                //numchilds--;
                 return links[i + 1]->remove(nkey);
             } else {
                 mergeChild(i);
@@ -235,8 +238,14 @@ bool Node::remove(int key) {
             return links[i]->remove(key);
         }
     }
-    return false;
-}*/
+}
+
+template bool Node<int>::remove(int key);
+
+template bool Node<float>::remove(float key);
+
+template bool Node<char>::remove(char key);
+
 
 template<typename T>
 void Node<T>::print(int d) {
@@ -345,7 +354,7 @@ void BTree<T>::print() {
     if (root != nullptr)
         root->print(0);
     else
-        cout << "BTree is empty" << endl;
+        cout << "\nBTree is empty" << endl;
 
 }
 
@@ -355,18 +364,23 @@ template void BTree<char>::print();
 
 template void BTree<int>::print();
 
-/*
-
-bool BTree::remove(int key) {
+template<typename T>
+bool BTree<T>::remove(T key) {
     if (root == nullptr) return false;
     bool flag = root->remove(key);
 
     if (root->numchilds == 0) {
-        Node *temp = root;
+        Node<T> *temp = root;
         root = temp->links[0];
         temp->links[0] = nullptr;
         delete temp;
     }
 
     return flag;
-}*/
+}
+
+template bool BTree<int>::remove(int key);
+
+template bool BTree<float>::remove(float key);
+
+template bool BTree<char>::remove(char key);

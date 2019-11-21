@@ -26,11 +26,11 @@ struct Node {
 
     void stealRight(int i);
 
-    int getMin(int i);
+    T getMin(int i);
 
-    int getMax(int i);
+    T getMax(int i);
 
-    bool remove(int key);
+    bool remove(T key);
 
     void print(int d);
 
@@ -51,7 +51,7 @@ public:
 
     void insert(typedata key);
 
-    bool remove(int key);
+    bool remove(typedata key);
 
     void print();
 };
