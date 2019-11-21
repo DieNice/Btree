@@ -5,11 +5,12 @@
 #ifndef BTREE_BTREE_H
 #define BTREE_BTREE_H
 
+template<typename T>
 struct Node {
     int t, numchilds;
     bool leaf;
-    Node **links;
-    int *keys;
+    Node<T> **links;
+    T *keys;
 
     Node(int pow = 2);
 
@@ -17,7 +18,7 @@ struct Node {
 
     void splitChild(int i);
 
-    void insertNonFull(int k);
+    void insertNonFull(T k);
 
     void mergeChild(int i);
 
@@ -33,21 +34,22 @@ struct Node {
 
     void print(int d);
 
-    bool search(int key);
+    bool search(T key);
 };
 
-
+template<typename typedata>
 class BTree {
+private:
     int power;
-    Node *root;
+    Node<typedata> *root;
 public:
     BTree(int p = 2);
 
     ~BTree();
 
-    bool search(int key);
+    bool search(typedata key);
 
-    void insert(int key);
+    void insert(typedata key);
 
     bool remove(int key);
 

@@ -9,19 +9,20 @@
 using namespace std;
 
 //********************************Node(Page)************************************
-
-Node::Node(int pow) {
+template<typename T>
+Node<T>::Node(int pow) {
     t = pow;
     numchilds = 0;
     leaf = true;
-    links = new Node *[2 * t];
+    links = new Node<T> *[2 * t];
     for (size_t i = 0; i < 2 * t; i++) {
         links[i] = nullptr;
     }
-    keys = new int[2 * t - 1];
+    keys = new T[2 * t - 1];
 }
 
-Node::~Node() {
+template<typename T>
+Node<T>::~Node() {
     for (size_t i = 0; i < 2 * t; i++) {
         if (links[i] != nullptr)
             delete links[i];
@@ -30,9 +31,10 @@ Node::~Node() {
     delete[] keys;
 }
 
-void Node::splitChild(int i) {
-    Node *z = new Node(t);
-    Node *y = links[i];
+template<typename T>
+void Node<T>::splitChild(int i) {
+    Node<T> *z = new Node<T>(t);
+    Node<T> *y = links[i];
     z->leaf = y->leaf;
     for (int j = 0; j < t - 1; j++) {
         z->keys[j] = y->keys[j + t];
@@ -55,7 +57,8 @@ void Node::splitChild(int i) {
     numchilds++;
 }
 
-void Node::insertNonFull(int k) {
+template<typename T>
+void Node<T>::insertNonFull(T k) {
     int i = numchilds - 1;
     if (leaf) {
         while (i >= 0 && k < keys[i]) {
@@ -79,7 +82,13 @@ void Node::insertNonFull(int k) {
 
 }
 
-void Node::stealLeft(int i) {
+template void Node<int>::insertNonFull(int k);
+
+template void Node<char>::insertNonFull(char k);
+
+template void Node<float>::insertNonFull(float k);
+
+/*void Node::stealLeft(int i) {
     Node *x = links[i];
     Node *y = links[i - 1];
     int k = keys[i - 1];
@@ -227,10 +236,10 @@ bool Node::remove(int key) {
         }
     }
     return false;
-}
+}*/
 
-
-void Node::print(int d) {
+template<typename T>
+void Node<T>::print(int d) {
     cout << "\nlvl=" << d << "=|";
     for (int i = 0; i < numchilds; i++) {
         cout << keys[i] << "|";
@@ -243,8 +252,8 @@ void Node::print(int d) {
     }
 }
 
-
-bool Node::search(int key) {
+template<typename T>
+bool Node<T>::search(T key) {
     int i = 0;
     for (i = 0; i < numchilds; i++) {
         if (key <= keys[i]) {
@@ -264,27 +273,57 @@ bool Node::search(int key) {
         return links[i]->search(key);
 }
 
+template bool Node<int>::search(int key);
+
+template bool Node<char>::search(char key);
+
+template bool Node<float>::search(float key);
+
 
 //**************************************BTREE**********************
 
-BTree::BTree(int p) {
+template<typename T>
+BTree<T>::BTree(int p) {
     power = p;
     root = nullptr;
 }
 
-BTree::~BTree() { delete root; }
+template BTree<float>::BTree(int p);
 
-bool BTree::search(int key) {
+template BTree<char>::BTree(int p);
+
+template BTree<int>::BTree(int p);
+
+
+template<typename T>
+BTree<T>::~BTree() { delete root; }
+
+template BTree<float>::~BTree();
+
+template BTree<char>::~BTree();
+
+template BTree<int>::~BTree();
+
+
+template<typename T>
+bool BTree<T>::search(T key) {
     if (root != nullptr)
         return root->search(key);
     return false;
 }
 
-void BTree::insert(int key) {
-    if (root == nullptr) { root = new Node(power); }
-    Node *r = root;
+template bool BTree<int>::search(int key);
+
+template bool BTree<float>::search(float key);
+
+template bool BTree<char>::search(char key);
+
+template<typename T>
+void BTree<T>::insert(T key) {
+    if (root == nullptr) { root = new Node<T>(power); }
+    Node<T> *r = root;
     if (root->numchilds == 2 * power - 1) {
-        Node *s = new Node(power);
+        Node<T> *s = new Node<T>(power);
         root = s;
         s->leaf = false;
         s->numchilds = 0;
@@ -294,13 +333,29 @@ void BTree::insert(int key) {
     } else { r->insertNonFull(key); }
 }
 
-void BTree::print() {
+template void BTree<float>::insert(float key);
+
+template void BTree<char>::insert(char key);
+
+template void BTree<int>::insert(int key);
+
+
+template<typename T>
+void BTree<T>::print() {
     if (root != nullptr)
         root->print(0);
     else
         cout << "BTree is empty" << endl;
 
 }
+
+template void BTree<float>::print();
+
+template void BTree<char>::print();
+
+template void BTree<int>::print();
+
+/*
 
 bool BTree::remove(int key) {
     if (root == nullptr) return false;
@@ -314,4 +369,4 @@ bool BTree::remove(int key) {
     }
 
     return flag;
-}
+}*/
