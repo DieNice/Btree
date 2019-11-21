@@ -10,9 +10,9 @@ using namespace std;
 
 //********************************Node(Page)************************************
 
-Node::Node(int _t) {
-    t = _t;
-    n = 0;
+Node::Node(int pow) {
+    t = pow;
+    numchilds = 0;
     leaf = true;
     links = new Node *[2 * t];
     for (size_t i = 0; i < 2 * t; i++) {
@@ -42,34 +42,34 @@ void Node::splitChild(int i) {
             z->links[j] = y->links[j + t];
             y->links[j + t] = nullptr;
         }
-    y->n = t - 1;
-    z->n = t - 1;
-    for (int j = n; j > i; j--) {
+    y->numchilds = t - 1;
+    z->numchilds = t - 1;
+    for (int j = numchilds; j > i; j--) {
         links[j + 1] = links[j];
     }
     links[i + 1] = z;
-    for (int j = n - 1; j >= i; j--) {
+    for (int j = numchilds - 1; j >= i; j--) {
         keys[j + 1] = keys[j];
     }
     keys[i] = y->keys[t - 1];
-    n++;
+    numchilds++;
 }
 
 void Node::insertNonFull(int k) {
-    int i = n - 1;
+    int i = numchilds - 1;
     if (leaf) {
         while (i >= 0 && k < keys[i]) {
             keys[i + 1] = keys[i];
             i--;
         }
         keys[i + 1] = k;
-        n++;
+        numchilds++;
     } else {
         while (i >= 0 && k < keys[i]) {
             i--;
         }
         i++;
-        if (links[i]->n == 2 * t - 1) {
+        if (links[i]->numchilds == 2 * t - 1) {
             splitChild(i);
             if (k > keys[i])
                 i++;
@@ -83,8 +83,8 @@ void Node::stealLeft(int i) {
     Node *x = links[i];
     Node *y = links[i - 1];
     int k = keys[i - 1];
-    int xn = x->n;
-    int yn = y->n;
+    int xn = x->numchilds;
+    int yn = y->numchilds;
 
     for (int j = xn; j > 0; j--) {
         x->keys[j] = x->keys[j - 1];
@@ -99,16 +99,16 @@ void Node::stealLeft(int i) {
     x->links[0] = y->links[yn];
     y->links[yn] = nullptr;
 
-    x->n += 1;
-    y->n -= 1;
+    x->numchilds += 1;
+    y->numchilds -= 1;
 }
 
 void Node::stealRight(int i) {
     Node *x = links[i];
     Node *y = links[i + 1];
     int k = keys[i];
-    int xn = x->n;
-    int yn = y->n;
+    int xn = x->numchilds;
+    int yn = y->numchilds;
 
     x->keys[xn] = k;
     keys[i] = y->keys[0];
@@ -123,15 +123,15 @@ void Node::stealRight(int i) {
     }
     y->links[yn] = nullptr;
 
-    x->n += 1;
-    y->n -= 1;
+    x->numchilds += 1;
+    y->numchilds -= 1;
 }
 
 void Node::mergeChild(int i) {
     Node *y = links[i];
     Node *z = links[i + 1];
-    int yn = y->n;
-    int zn = z->n;
+    int yn = y->numchilds;
+    int zn = z->numchilds;
     y->keys[yn] = keys[i];
     for (int j = 0; j < zn; j++) {
         y->keys[yn + j + 1] = z->keys[j];
@@ -141,17 +141,17 @@ void Node::mergeChild(int i) {
             y->links[yn + 1 + j] = z->links[j];
             z->links[j] = nullptr;
         }
-    y->n = yn + zn + 1;
+    y->numchilds = yn + zn + 1;
     delete z;
-    for (int j = i + 1; j < n; j++) {
+    for (int j = i + 1; j < numchilds; j++) {
         links[j] = links[j + 1];
     }
-    links[n] = nullptr;
-    for (int j = i; j < n - 1; j++) {
+    links[numchilds] = nullptr;
+    for (int j = i; j < numchilds - 1; j++) {
         keys[j] = keys[j + 1];
     }
-    keys[n - 1] = 0;
-    n--;
+    keys[numchilds - 1] = 0;
+    numchilds--;
 }
 
 int Node::getMin(int i) {
@@ -165,39 +165,39 @@ int Node::getMin(int i) {
 int Node::getMax(int i) {
     Node *x = links[i];
     while (!x->leaf)
-        x = x->links[x->n];
-    return x->keys[x->n - 1];
+        x = x->links[x->numchilds];
+    return x->keys[x->numchilds - 1];
 }
 
 bool Node::remove(int key) {
     int i = 0;
-    for (i = 0; i < n; i++) {
+    for (i = 0; i < numchilds; i++) {
         if (key <= keys[i]) {
             i++;
             break;
         }
-        if (i == n - 1)
-            i = n;
+        if (i == numchilds - 1)
+            i = numchilds;
     }
     i--;
-    if (i != n && key == keys[i]) {
+    if (i != numchilds && key == keys[i]) {
         if (leaf) {
-            for (int j = i; j < n - 1; j++) {
+            for (int j = i; j < numchilds - 1; j++) {
                 keys[j] = keys[j + 1];
             }
-            n--;
-            keys[n] = 0;
+            numchilds--;
+            keys[numchilds] = 0;
             return true;
         } else {
-            if (links[i]->n >= t) {
+            if (links[i]->numchilds >= t) {
                 int nkey = getMax(i);
                 keys[i] = nkey;
-                //n--;
+                //numchilds--;
                 return links[i]->remove(nkey);
-            } else if (links[i + 1]->n >= t) {
+            } else if (links[i + 1]->numchilds >= t) {
                 int nkey = getMin(i + 1);
                 keys[i] = nkey;
-                //n--;
+                //numchilds--;
                 return links[i + 1]->remove(nkey);
             } else {
                 mergeChild(i);
@@ -209,10 +209,10 @@ bool Node::remove(int key) {
         if (leaf) {
             return false;
         } else {
-            if (links[i]->n == t - 1) {
-                if (i > 0 && links[i - 1]->n >= t) {
+            if (links[i]->numchilds == t - 1) {
+                if (i > 0 && links[i - 1]->numchilds >= t) {
                     stealLeft(i);
-                } else if (i < n && links[i + 1]->n >= t) {
+                } else if (i < numchilds && links[i + 1]->numchilds >= t) {
                     stealRight(i);
                 } else {
                     if (i > 0) {
@@ -231,37 +231,32 @@ bool Node::remove(int key) {
 
 
 void Node::print(int d) {
-    for (int i = n; i >= 0; i--) {
-        if (i < n) {
-            if (i == n - 1) {
-                printTab(d);
-                cout << "---" << endl;
-            }
-            printTab(d);
-            cout << keys[i] << endl;
-            if (i == 0) {
-                printTab(d);
-                cout << "---" << endl;
-            }
-        }
-        if (!leaf)
+    cout << "\nlvl=" << d << "=|";
+    for (int i = 0; i < numchilds; i++) {
+        cout << keys[i] << "|";
+    }
+
+    if (!leaf) {
+        for (int i = 0; i <= numchilds; i++) {
             links[i]->print(d + 1);
+        }
     }
 }
 
+
 bool Node::search(int key) {
     int i = 0;
-    for (i = 0; i < n; i++) {
+    for (i = 0; i < numchilds; i++) {
         if (key <= keys[i]) {
             i++;
             break;
         }
-        if (i == n - 1)
-            i = n;
+        if (i == numchilds - 1)
+            i = numchilds;
     }
     i--;
 
-    if (i != n && key == keys[i])
+    if (i != numchilds && key == keys[i])
         return true;
     else if (leaf)
         return false;
@@ -270,16 +265,10 @@ bool Node::search(int key) {
 }
 
 
-void printTab(int d) {
-    for (size_t i = 0; i < d; i++) {
-        cout << '\t';
-    }
-}
 //**************************************BTREE**********************
 
-BTree::BTree(int _t) {
-    t = _t;
-    //root = new Node(t);
+BTree::BTree(int p) {
+    power = p;
     root = nullptr;
 }
 
@@ -292,36 +281,32 @@ bool BTree::search(int key) {
 }
 
 void BTree::insert(int key) {
-    if (root == nullptr)
-        root = new Node(t);
+    if (root == nullptr) { root = new Node(power); }
     Node *r = root;
-    if (root->n == 2 * t - 1) {
-        Node *s = new Node(t);
+    if (root->numchilds == 2 * power - 1) {
+        Node *s = new Node(power);
         root = s;
         s->leaf = false;
-        s->n = 0;
+        s->numchilds = 0;
         s->links[0] = r;
         s->splitChild(0);
         s->insertNonFull(key);
-    } else
-        r->insertNonFull(key);
+    } else { r->insertNonFull(key); }
 }
 
 void BTree::print() {
     if (root != nullptr)
         root->print(0);
     else
-        cout << "Tree is empty";
-    cout << endl;
-    cout << endl;
-    cout << endl;
+        cout << "BTree is empty" << endl;
+
 }
 
 bool BTree::remove(int key) {
     if (root == nullptr) return false;
     bool flag = root->remove(key);
 
-    if (root->n == 0) {
+    if (root->numchilds == 0) {
         Node *temp = root;
         root = temp->links[0];
         temp->links[0] = nullptr;

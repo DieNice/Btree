@@ -5,15 +5,13 @@
 #ifndef BTREE_BTREE_H
 #define BTREE_BTREE_H
 
-void printTab(int d);
-
 struct Node {
-    int t, n;
+    int t, numchilds;
     bool leaf;
     Node **links;
     int *keys;
 
-    Node(int _t = 2);
+    Node(int pow = 2);
 
     ~Node();
 
@@ -40,10 +38,10 @@ struct Node {
 
 
 class BTree {
-    int t;
+    int power;
     Node *root;
 public:
-    BTree(int _t = 2);
+    BTree(int p = 2);
 
     ~BTree();
 
