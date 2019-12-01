@@ -1,28 +1,23 @@
 #include "src/Btree.h"
-#include <iostream>
-//#include <vector>
 
 using namespace std;
 
 int main() {
-    BTree<float> tree(2);
+    BTree<int> tree(2);
 
-    int n = 9;
+    int n = 11;
     float d = 3.14;
+    char h = 'a';
     for (int i = 1; i < n; i++) {
-        tree.insert(d);
-        cout << tree.search(d);
-        d = d + 1;
+        tree.add(n-i);
+        d = i % 5;
+        h++;
 
     }
-    cout << tree.search(d + 1);
     tree.print();
 
-    d = 3.14;
-    for (int i = 1; i < n; i++) {
-        tree.remove(d);
-        d = d + 1;
-    }
+    tree.del(10);
 
+    cout << "\n--------" << endl;
     tree.print();
 }

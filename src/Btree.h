@@ -1,13 +1,11 @@
-//
-// Created by pda on 11/21/19.
-//
-
 #ifndef BTREE_BTREE_H
 #define BTREE_BTREE_H
 
+#include <iostream>
+
 template<typename T>
 struct Node {
-    int t, numchilds;
+    int t, num;
     bool leaf;
     Node<T> **links;
     T *keys;
@@ -34,8 +32,9 @@ struct Node {
 
     void print(int d);
 
-    bool search(T key);
+    int search(T key);
 };
+
 
 template<typename typedata>
 class BTree {
@@ -49,9 +48,9 @@ public:
 
     bool search(typedata key);
 
-    void insert(typedata key);
+    bool add(typedata key);
 
-    bool remove(typedata key);
+    bool del(typedata key);
 
     void print();
 };
